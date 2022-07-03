@@ -55,11 +55,9 @@ This was tested in the following settings. If you try it in another and it works
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-
 https://user-images.githubusercontent.com/814791/177024333-dd5e8175-f091-41b8-ab46-2ed49185ffe8.mp4
 
-
-Press the assigned shortcut and a grid with the focused title will be shown. Click on a grid square, then on another, and the window will be resized to fit that space.
+Press the assigned shortcut and a grid will be shown. It will you the current focused window title and a grid. Click on a grid square, then on another, and the window will be resized to fit that space. Select another window and click again to tile it. When you are done, press the assigned shortcut again to hide it.
 
 <!-- ROADMAP -->
 ## Roadmap
