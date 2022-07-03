@@ -1,0 +1,23 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "federicoscodelaro@gmail.com",
+                "Name": "Federico Scodelaro"
+            }
+        ],
+        "Description": "Tile windows clicking in a grid. Like divvy for mac os.",
+        "Icon": "preferences-system-windows-script-test",
+        "Id": "manualtiling",
+        "License": "GPL",
+        "Name": "Manual tiling",
+        "ServiceTypes": [
+            "KWin/Script"
+        ],
+        "Version": "1.0"
+    },
+    "X-KWin-Exclude-Listing": "true",
+    "X-Plasma-API": "declarativescript",
+    "X-Plasma-MainScript": "ui/main.qml",
+    "X-KDE-ConfigModule": "kwin/effects/configs/kcm_kwin4_genericscripted"
+}
