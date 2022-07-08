@@ -49,15 +49,19 @@ This was tested in the following settings. If you try it in another and it works
 
 1. Download the release file
 2. Load it from *System Settings -> Window Management -> KWin Scripts -> Install from file*
-3. You could change the number of columns, rows, colors and more from the settings.
-4. The default shortcut is *Meta+Ctrl+D*. If you dont like it, you could change it from *System Setggins -> Shortcuts -> Kwin -> Manual Tiling*
+3. You could change the number of columns and rows from the settings.
+4. The default shortcut is *Meta+Ctrl+D*. If you dont like it, you could change it from *System Settings -> Shortcuts -> Kwin -> Manual Tiling*
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 https://user-images.githubusercontent.com/814791/177024333-dd5e8175-f091-41b8-ab46-2ed49185ffe8.mp4
 
-Press the assigned shortcut and a grid will be shown. It will you the current focused window title and a grid. Click on a grid square, then on another, and the window will be resized to fit that space. Select another window and click again to tile it. When you are done, press the assigned shortcut again to hide it.
+Press the assigned shortcut and the applet will be shown. On the right, you could choose the window to tile clicking it. It would bring it to focus. On the left, click on a grid square, then on another, and the window will be resized to fit that space. Do the same for another one. When you are done, press the assigned shortcut again to hide it.
+
+The icons on the grid are merely decorative, you could still click on the squares, *but would you?*
+
+Opening and closing the applet will clean the grid, the idea is to launch it, arrange the windows and then forget about it. I dont want to force already placed windows into a made up grid.
 
 <!-- ROADMAP -->
 ## Roadmap
