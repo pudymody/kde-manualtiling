@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.15;
 import org.kde.plasma.core 2.0 as PlasmaCore;
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kwin 2.0;
+import org.kde.taskmanager 0.1 as TaskManager
 
 PlasmaCore.Dialog {
     id: dialog
@@ -12,35 +13,38 @@ PlasmaCore.Dialog {
     visible: false
     flags: Qt.X11BypassWindowManagerHint | Qt.FramelessWindowHint
 
+    function resetGrid(){
+        let grid = [];
+        for(let i = 0; i < dialogItem.rows; i++){
+            let r = [];
+            for(let j = 0; j < dialogItem.columns; j++){
+                r.push(0);
+            }
+            grid.push(r);
+        }
+        dialogItem.gridUsed = grid;
+        dialogItem.windows = {};
+    }
+
     function show() {
         var screen = workspace.clientArea(KWin.FullScreenArea, workspace.activeScreen, workspace.currentDesktop);
         dialog.visible = true;
         dialog.x = screen.x + screen.width/2 - dialogItem.width/2;
         dialog.y = screen.y + screen.height/2 - dialogItem.height/2;
+
+        dialog.resetGrid();
     }
 
     function loadConfig(){
         dialogItem.rows = KWin.readConfig("rows", 8);
         dialogItem.columns = KWin.readConfig("columns", 8);
-        dialogItem.spacing = KWin.readConfig("spacing", 2);
-        dialogItem.squareSize = KWin.readConfig("squareSize", 25);
-        dialogItem.color_unselected = KWin.readConfig("color_unselected", "#FFFFFF");
-        dialogItem.color_selected = KWin.readConfig("color_selected", "#FF0000");
-
-        console.log("READ CONFIG");
     }
 
-    mainItem: ColumnLayout {
+    mainItem: RowLayout {
         id: dialogItem
-        width: (dialogItem.squareSize * dialogItem.columns) + (dialogItem.spacing * (dialogItem.columns-1))
-
-        // magic number here, need to learn how to set size as grid size
-        height: (dialogItem.squareSize * dialogItem.rows) + (dialogItem.spacing * (dialogItem.rows-1)) + focusTitle.height + 5
 
         property int rows: 8
         property int columns: 8
-        property int spacing: 2
-        property int squareSize: 25
 
         property int row_start: -1
         property int col_start: -1
@@ -48,33 +52,27 @@ PlasmaCore.Dialog {
         property int row_end: -1
         property int col_end: -1
 
-        property color color_unselected: "white"
-        property color color_selected: "red"
+        property var windows: ({})
+        property var gridUsed: []
 
-        PlasmaExtras.Heading {
-            id: focusTitle
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.NoWrap
-            elide: Text.ElideRight
-            text: workspace.activeClient.caption
-        }
-
-        Grid {
+        GridLayout {
+            id: gridPositioner
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             columns: dialogItem.columns
             rows: dialogItem.rows
-            spacing: dialogItem.spacing
+            columnSpacing: PlasmaCore.Units.smallSpacing
+            rowSpacing: PlasmaCore.Units.smallSpacing
 
             Repeater {
                 model: dialogItem.columns * dialogItem.rows
                 Rectangle {
-                    width: dialogItem.squareSize
-                    height: dialogItem.squareSize
+                    width: PlasmaCore.Units.iconSizes.smallMedium
+                    height: PlasmaCore.Units.iconSizes.smallMedium
 
                     property int row: Math.floor( index / dialogItem.columns )
                     property int col: index % dialogItem.columns
+                    Layout.row: this.row
+                    Layout.column: this.col
 
                     color: {
                         let selection_started = dialogItem.row_start != -1 && dialogItem.col_start != -1;
@@ -87,11 +85,18 @@ PlasmaCore.Dialog {
                             let col_max = Math.max(dialogItem.col_start, dialogItem.col_end);
 
                             if( this.row >= row_min && this.row <= row_max && this.col >= col_min && this.col <= col_max ){
-                                return dialogItem.color_selected;
+                                return PlasmaCore.Theme.highlightColor;
                             }
                         }
 
-                        return dialogItem.color_unselected;
+                        return PlasmaCore.Theme.textColor;
+                    }
+
+                    PlasmaCore.IconItem {
+                        source: dialogItem.windows[ dialogItem.gridUsed[ parent.row ][ parent.col ] ]
+                        visible: this.source != undefined
+                        width: parent.width
+                        height: parent.height
                     }
 
                     MouseArea {
@@ -144,7 +149,73 @@ PlasmaCore.Dialog {
                                 dialogItem.row_start = -1;
                                 dialogItem.col_end = -1;
                                 dialogItem.row_end = -1;
+
+                                let windowID = workspace.activeClient.windowId;
+                                dialogItem.windows[ windowID ] = workspace.activeClient.icon;
+                                for( let i = 0; i < dialogItem.rows; i++){
+                                    for(let j = 0; j < dialogItem.columns; j++){
+                                        if( dialogItem.gridUsed[i][j] == windowID ){
+                                            dialogItem.gridUsed[i][j] = null;
+                                        }
+
+                                        if( i >= row_min && i <= row_max && j >= col_min && j <= col_max ){
+                                            dialogItem.gridUsed[i][j] = windowID;
+                                        }
+                                    }
+                                }
+
+                                dialogItem.windowsChanged();
+                                dialogItem.gridUsedChanged();
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        ColumnLayout {
+            ListView {
+                id: textListView
+                Layout.minimumWidth: PlasmaCore.Units.gridUnit * 10
+                Layout.preferredWidth: gridPositioner.width
+                Layout.fillHeight: true
+                clip: true
+                model: TaskManager.TasksModel {
+                    id: tasksModel
+                    sortMode: TaskManager.TasksModel.SortVirtualDesktop
+                    groupMode: TaskManager.TasksModel.GroupDisabled
+                }
+
+                highlight: PlasmaCore.FrameSvgItem {
+                    id: highlightItem
+                    imagePath: "widgets/viewitem"
+                    prefix: "hover"
+                }
+                highlightMoveDuration: 0
+                highlightResizeDuration: 0
+
+                delegate: MouseArea {
+                    onReleased: {
+                        textListView.currentIndex = index;
+                        tasksModel.requestActivate(tasksModel.makeModelIndex(model.index))
+                    }
+                    width:  textListView.width
+                    height: childrenRect.height
+                    Row {
+                        spacing: PlasmaCore.Units.smallSpacing
+                        PlasmaCore.IconItem {
+                            source: model.decoration
+                            visible: source !== ""
+
+                            anchors.top: parent.top
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            implicitWidth: PlasmaCore.Units.roundToIconSize(parent.height)
+                            implicitHeight: PlasmaCore.Units.roundToIconSize(parent.height)
+                        }
+                        PlasmaExtras.Heading {
+                            level: 2
+                            text: model.display
                         }
                     }
                 }
@@ -169,5 +240,6 @@ PlasmaCore.Dialog {
         });
 
         dialog.loadConfig();
+        dialog.resetGrid();
     }
 }
