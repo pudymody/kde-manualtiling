@@ -54,8 +54,9 @@ This was tested in the following settings. If you try it in another and it works
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+[First Prototype](https://user-images.githubusercontent.com/814791/177024333-dd5e8175-f091-41b8-ab46-2ed49185ffe8.mp4)
 
-https://user-images.githubusercontent.com/814791/177024333-dd5e8175-f091-41b8-ab46-2ed49185ffe8.mp4
+https://user-images.githubusercontent.com/814791/178079470-98b6f75a-cf18-4def-b0f2-d4ec025dea9b.mp4
 
 Press the assigned shortcut and the applet will be shown. On the right, you could choose the window to tile clicking it. It would bring it to focus. On the left, click on a grid square, then on another, and the window will be resized to fit that space. Do the same for another one. When you are done, press the assigned shortcut again to hide it.
 
