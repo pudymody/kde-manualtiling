@@ -174,6 +174,9 @@ PlasmaCore.Dialog {
         }
 
         ColumnLayout {
+            TaskManager.VirtualDesktopInfo {
+                id: virtualDesktopInfo
+            }
             ListView {
                 id: textListView
                 Layout.minimumWidth: PlasmaCore.Units.gridUnit * 10
@@ -184,6 +187,8 @@ PlasmaCore.Dialog {
                     id: tasksModel
                     sortMode: TaskManager.TasksModel.SortVirtualDesktop
                     groupMode: TaskManager.TasksModel.GroupDisabled
+                    filterByVirtualDesktop: true
+                    virtualDesktop: virtualDesktopInfo.currentDesktop
                 }
 
                 highlight: PlasmaCore.FrameSvgItem {
